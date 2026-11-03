@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { UnauthorizedError, requireUser } from "../../lib/current-user";
 import { todayInTimezone } from "../../lib/dates";
 import { getSettings } from "../settings/queries";
@@ -79,6 +80,7 @@ export type CaptureFormState = {
   error: string;
   title: string;
   attempt: number;
+  captured: { id: string; title: string } | null;
 };
 
 export async function captureTaskAction(
@@ -90,19 +92,30 @@ export async function captureTaskAction(
   try {
     const result = await captureInboxTask(user.id, title);
     if (!result.ok) {
-      return { error: result.message, title, attempt: previous.attempt + 1 };
+      return { error: result.message, title, attempt: previous.attempt + 1, captured: null };
     }
+    // revalidatePath during the action makes Next re-render the current page
+    // before this response is sent. Do it after the response so the save stays
+    // a single write, and the open page updates the inbox itself.
+    after(() => {
+      revalidatePath("/today");
+      revalidatePath("/tasks");
+      revalidatePath("/");
+    });
+    return {
+      error: "",
+      title: "",
+      attempt: previous.attempt + 1,
+      captured: { id: result.task.id, title: result.task.title },
+    };
   } catch {
     return {
       error: "Something went wrong saving this. Your text is still on the page.",
       title,
       attempt: previous.attempt + 1,
+      captured: null,
     };
   }
-  revalidatePath("/today");
-  revalidatePath("/tasks");
-  revalidatePath("/");
-  return { error: "", title: "", attempt: previous.attempt + 1 };
 }
 
 export type SeriesFormState = {

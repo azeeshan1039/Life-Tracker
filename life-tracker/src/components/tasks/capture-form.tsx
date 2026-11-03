@@ -1,12 +1,20 @@
 "use client";
 
+import { useEffect } from "react";
 import { useActionState } from "react";
 import { captureTaskAction, type CaptureFormState } from "../../modules/tasks/actions";
+import { publishCapturedInboxTask } from "./captured-inbox";
 
-const initialState: CaptureFormState = { error: "", title: "", attempt: 0 };
+const initialState: CaptureFormState = { error: "", title: "", attempt: 0, captured: null };
 
 export function CaptureForm({ dock = false }: { dock?: boolean }) {
   const [state, formAction, pending] = useActionState(captureTaskAction, initialState);
+
+  useEffect(() => {
+    if (state.captured) {
+      publishCapturedInboxTask(state.captured);
+    }
+  }, [state.captured]);
 
   return (
     <form action={formAction} className={dock ? "capture-dock flex flex-col gap-2" : "flex flex-col gap-2"}>

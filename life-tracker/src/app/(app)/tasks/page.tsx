@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireUser } from "../../../lib/current-user";
 import { getSettings } from "../../../modules/settings/queries";
 import { CaptureForm } from "../../../components/tasks/capture-form";
+import { InboxTaskList } from "../../../components/tasks/captured-inbox";
 import { CompletionLine, TaskLine } from "../../../components/tasks/task-line";
 import {
   filterTasks,
@@ -14,6 +15,7 @@ import {
   type TaskListItem,
 } from "../../../modules/tasks/views";
 import { todayInTimezone } from "../../../lib/dates";
+import { acceptsCapturedInbox } from "../../../modules/tasks/captured-inbox";
 import { materializeActiveSeries } from "../../../modules/tasks/materialize";
 
 export const instant = false;
@@ -96,7 +98,15 @@ export default async function TasksPage({
           priority={Number.isInteger(priorityFilter) ? priorityFilter : null}
         />
       ) : (
-        <OpenView view={view} tasks={tasks} today={today} />
+        <OpenView
+          view={view}
+          tasks={tasks}
+          today={today}
+          acceptCapture={acceptsCapturedInbox(
+            Number.isInteger(lifeAreaId) ? lifeAreaId : null,
+            Number.isInteger(priorityFilter) ? priorityFilter : null,
+          )}
+        />
       )}
     </div>
   );
@@ -106,17 +116,15 @@ function OpenView({
   view,
   tasks,
   today,
+  acceptCapture,
 }: {
   view: Exclude<TaskView, "completed">;
   tasks: TaskListItem[];
   today: string;
+  acceptCapture: boolean;
 }) {
   if (view === "inbox") {
-    const inbox = inboxTasks(tasks);
-    if (inbox.length === 0) {
-      return <p>Inbox is empty.</p>;
-    }
-    return <TaskItems tasks={inbox} />;
+    return <InboxTaskList tasks={inboxTasks(tasks)} acceptCapture={acceptCapture} />;
   }
   if (view === "overdue") {
     const overdue = overdueTasks(tasks, today);

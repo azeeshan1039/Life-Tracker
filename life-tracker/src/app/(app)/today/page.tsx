@@ -6,9 +6,10 @@ import { sessionCookie } from "../../../modules/auth/session";
 import { getSettings } from "../../../modules/settings/queries";
 import { TodayHabits } from "../../../components/habits/today-habits";
 import { CaptureForm } from "../../../components/tasks/capture-form";
+import { InboxCount } from "../../../components/tasks/captured-inbox";
 import { TaskLine } from "../../../components/tasks/task-line";
 import { loadHabitsForToday } from "../../../modules/habits/queries";
-import { estimateSentence, inboxCount, inboxLabel } from "../../../modules/tasks/day-summary";
+import { estimateSentence, inboxCount } from "../../../modules/tasks/day-summary";
 import { materializeActiveSeries } from "../../../modules/tasks/materialize";
 import { groupForToday, listTasksForUser } from "../../../modules/tasks/views";
 
@@ -86,11 +87,7 @@ export default async function TodayPage() {
           </Link>
         </p>
       ) : null}
-      <p>
-        <Link href="/tasks?view=inbox" className="underline">
-          {inboxLabel(inboxCount(tasks))}
-        </Link>
-      </p>
+      <InboxCount initial={inboxCount(tasks)} />
       <CaptureForm dock />
     </div>
   );

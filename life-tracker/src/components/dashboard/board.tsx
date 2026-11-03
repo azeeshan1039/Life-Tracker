@@ -2,8 +2,8 @@ import Link from "next/link";
 import { formatCivilDate } from "../../lib/dates";
 import { TodayHabits } from "../habits/today-habits";
 import { CaptureForm } from "../tasks/capture-form";
+import { InboxCount } from "../tasks/captured-inbox";
 import { TaskLine } from "../tasks/task-line";
-import { inboxLabel } from "../../modules/tasks/day-summary";
 import type { DashboardData, WidgetId } from "../../modules/dashboard/queries";
 
 const widgetLinks: Record<WidgetId, { href: string; label: string }> = {
@@ -143,11 +143,7 @@ function InboxWidget({ data }: { data: DashboardData }) {
   return (
     <section className="widget">
       <WidgetHeading id="inbox" />
-      <p className="mt-2">
-        <Link href="/tasks?view=inbox" className="underline">
-          {inboxLabel(data.inbox)}
-        </Link>
-      </p>
+      <InboxCount initial={data.inbox} className="mt-2" />
       <div className="mt-3">
         <CaptureForm />
       </div>
