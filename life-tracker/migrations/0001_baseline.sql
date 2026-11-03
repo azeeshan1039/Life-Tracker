@@ -1,0 +1,1 @@
+-- Baseline. Application tables arrive in later migrations.
