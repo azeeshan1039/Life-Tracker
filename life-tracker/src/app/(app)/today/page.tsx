@@ -26,8 +26,10 @@ export default async function TodayPage() {
   const user = await loadToday(cookieStore.get(sessionCookie.name)?.value);
   const settings = await getSettings(user.id);
   const today = todayInTimezone(new Date(), settings.timezone);
-  await materializeActiveSeries(user.id, today);
-  const habits = await loadHabitsForToday(user.id, today);
+  const [habits] = await Promise.all([
+    loadHabitsForToday(user.id, today),
+    materializeActiveSeries(user.id, today),
+  ]);
   const tasks = await listTasksForUser(user.id);
   const groups = groupForToday(tasks, today);
   const estimate = estimateSentence(groups.scheduled);

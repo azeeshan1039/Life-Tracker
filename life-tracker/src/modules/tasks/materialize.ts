@@ -29,9 +29,7 @@ export async function materializeActiveSeries(userId: string, today: string): Pr
     throw new Error(error.message);
   }
 
-  for (const series of data ?? []) {
-    await insertMissing(userId, series, today);
-  }
+  await Promise.all((data ?? []).map((series) => insertMissing(userId, series, today)));
 }
 
 async function insertMissing(userId: string, series: SeriesRow, today: string): Promise<void> {

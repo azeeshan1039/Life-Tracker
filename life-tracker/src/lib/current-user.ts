@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { cookies } from "next/headers";
 import { findValidSession, sessionCookie } from "../modules/auth/session";
 
@@ -8,7 +9,7 @@ export class UnauthorizedError extends Error {
   }
 }
 
-export async function requireUserFromToken(token: string | undefined) {
+export const requireUserFromToken = cache(async (token: string | undefined) => {
   if (!token) {
     throw new UnauthorizedError();
   }
@@ -17,7 +18,7 @@ export async function requireUserFromToken(token: string | undefined) {
     throw new UnauthorizedError();
   }
   return user;
-}
+});
 
 export async function requireUser() {
   // cacheComponents prerenders this layout. The session expiry check reads the

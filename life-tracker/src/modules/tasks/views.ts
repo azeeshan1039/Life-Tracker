@@ -104,16 +104,18 @@ export async function listLifeAreas(): Promise<{ id: number; name: string }[]> {
 }
 
 export async function listTasksForUser(userId: string): Promise<TaskListItem[]> {
-  const areas = await listLifeAreas();
-  const names = new Map(areas.map((area) => [area.id, area.name]));
-  const { data, error } = await getAdminClient()
-    .from("tasks")
-    .select("id, title, status, priority, due_on, scheduled_for, life_area_id, estimated_minutes")
-    .eq("user_id", userId);
-  if (error) {
-    throw new Error(error.message);
+  const [areas, result] = await Promise.all([
+    listLifeAreas(),
+    getAdminClient()
+      .from("tasks")
+      .select("id, title, status, priority, due_on, scheduled_for, life_area_id, estimated_minutes")
+      .eq("user_id", userId),
+  ]);
+  if (result.error) {
+    throw new Error(result.error.message);
   }
-  return (data ?? []).map((row) => toItem(row, names));
+  const names = new Map(areas.map((area) => [area.id, area.name]));
+  return (result.data ?? []).map((row) => toItem(row, names));
 }
 
 export async function listRecentCompletions(userId: string, since: string): Promise<CompletionItem[]> {

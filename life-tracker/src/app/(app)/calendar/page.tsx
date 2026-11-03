@@ -24,13 +24,15 @@ export default async function CalendarPage({
   const params = await searchParams;
   const settings = await getSettings(user.id);
   const today = todayInTimezone(new Date(), settings.timezone);
-  await materializeActiveSeries(user.id, today);
   const month = parseMonth(first(params.month), today);
   const weekAnchor = parseDate(first(params.week), today);
   const selected = parseDate(first(params.day), "");
+  const milestonesPromise = listCalendarMilestones(user.id);
+  await materializeActiveSeries(user.id, today);
+  const [calendarTasks, calendarMilestones] = await Promise.all([listCalendarTasks(user.id), milestonesPromise]);
   const entries = [
-    ...entriesForTasks(await listCalendarTasks(user.id), settings.timezone),
-    ...entriesForMilestones(await listCalendarMilestones(user.id)),
+    ...entriesForTasks(calendarTasks, settings.timezone),
+    ...entriesForMilestones(calendarMilestones),
   ];
   const weeks = buildMonthWeeks(month, settings.weekStartsOn);
   const agenda = buildWeek(weekAnchor, settings.weekStartsOn);

@@ -123,31 +123,43 @@ export async function logout(token: string): Promise<void> {
   assertNoError(error);
 }
 
+const seenSlideMs = 15 * 60 * 1000;
+
 export async function findValidSession(
   token: string,
 ): Promise<{ id: string; email: string; name: string } | null> {
   const { data, error } = await getAdminClient()
     .from("sessions")
-    .select("id, user_id, expires_at")
+    .select("id, last_seen_at, users(id, email, name)")
     .eq("token_hash", hashToken(token))
     .gt("expires_at", new Date().toISOString())
     .maybeSingle();
   assertNoError(error);
-  if (!data) {
+  const user = accountFrom(data?.users);
+  if (!data || !user) {
     return null;
   }
 
-  const { error: seenError } = await getAdminClient()
-    .from("sessions")
-    .update({ last_seen_at: new Date().toISOString() })
-    .eq("id", data.id);
-  assertNoError(seenError);
+  const seenAt = new Date(data.last_seen_at).getTime();
+  if (!Number.isFinite(seenAt) || Date.now() - seenAt >= seenSlideMs) {
+    const { error: seenError } = await getAdminClient()
+      .from("sessions")
+      .update({ last_seen_at: new Date().toISOString() })
+      .eq("id", data.id);
+    assertNoError(seenError);
+  }
 
-  const { data: user, error: userError } = await getAdminClient()
-    .from("users")
-    .select("id, email, name")
-    .eq("id", data.user_id)
-    .maybeSingle();
-  assertNoError(userError);
   return user;
+}
+
+function accountFrom(value: unknown): { id: string; email: string; name: string } | null {
+  const row = Array.isArray(value) ? value[0] : value;
+  if (!row || typeof row !== "object") {
+    return null;
+  }
+  const record = row as { id?: unknown; email?: unknown; name?: unknown };
+  if (typeof record.id !== "string" || typeof record.email !== "string" || typeof record.name !== "string") {
+    return null;
+  }
+  return { id: record.id, email: record.email, name: record.name };
 }

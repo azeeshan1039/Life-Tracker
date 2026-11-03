@@ -37,9 +37,10 @@ export default async function TasksPage({
   const priorityFilter = priority === "" ? null : Number(priority);
   const settings = await getSettings(user.id);
   const today = todayInTimezone(new Date(), settings.timezone);
+  const areasPromise = listLifeAreas();
   await materializeActiveSeries(user.id, today);
-  const areas = await listLifeAreas();
-  const tasks = filterTasks(await listTasksForUser(user.id), {
+  const [areas, taskRows] = await Promise.all([areasPromise, listTasksForUser(user.id)]);
+  const tasks = filterTasks(taskRows, {
     lifeAreaId: Number.isInteger(lifeAreaId) ? lifeAreaId : null,
     priority: Number.isInteger(priorityFilter) ? priorityFilter : null,
   });

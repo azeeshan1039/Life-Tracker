@@ -97,13 +97,17 @@ export async function saveDashboardConfig(
 }
 
 export async function loadDashboard(userId: string, today: string): Promise<DashboardData> {
-  const config = await readDashboardConfig(userId);
-  await materializeActiveSeries(userId, today);
-  const tasks = await listTasksForUser(userId);
-  const milestones = await listUpcomingMilestones(userId, today, sevenDayEnd(today));
-  const habits = await loadHabitsForToday(userId, today);
-  const goals = await listGoalRows(userId);
-  const measurements = config.pinnedGoalIds.length > 0 ? await listGoalMeasurements(userId, today) : [];
+  const [config, habits, goals, milestones] = await Promise.all([
+    readDashboardConfig(userId),
+    loadHabitsForToday(userId, today),
+    listGoalRows(userId),
+    listUpcomingMilestones(userId, today, sevenDayEnd(today)),
+    materializeActiveSeries(userId, today),
+  ]);
+  const [tasks, measurements] = await Promise.all([
+    listTasksForUser(userId),
+    config.pinnedGoalIds.length > 0 ? listGoalMeasurements(userId, today) : Promise.resolve([]),
+  ]);
   const groups = groupForToday(tasks, today);
   const steps = dashboardQuerySteps(config.pinnedGoalIds.length);
   logger.info({ steps }, "dashboard load");

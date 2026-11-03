@@ -87,9 +87,8 @@ export async function loadHabitsForToday(userId: string, today: string): Promise
   due: TodayHabit[];
   weeklyMet: TodayHabit[];
 }> {
-  const habits = await listHabits(userId, "active");
   const monday = addCivilDays(today, 1 - isoWeekday(today));
-  const logs = await listLogsSince(userId, monday);
+  const [habits, logs] = await Promise.all([listHabits(userId, "active"), listLogsSince(userId, monday)]);
   return habitsForToday(
     habits.map((habit) => ({
       ...habit,
