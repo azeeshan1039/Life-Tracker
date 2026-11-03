@@ -168,6 +168,6 @@ async function preview(
   }
   return (data ?? []).map((row) => ({
     id: row.id,
-    title: row[titleColumn],
+    title: "name" in row ? row.name : row.title,
   }));
 }

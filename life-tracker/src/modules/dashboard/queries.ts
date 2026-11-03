@@ -10,6 +10,8 @@ import { inboxCount } from "../tasks/day-summary";
 import { groupForToday, listTasksForUser, type TaskListItem } from "../tasks/views";
 import { parseDashboardConfig, visibleWidgets, isWidgetId, type DashboardConfig, type WidgetId } from "./config";
 
+export type { WidgetId };
+
 export type UpcomingMilestone = {
   id: string;
   projectId: string;

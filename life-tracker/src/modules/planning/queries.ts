@@ -163,7 +163,9 @@ async function titledLinks(
   if (links.error) {
     throw new Error(links.error.message);
   }
-  const ids = (links.data ?? []).map((row) => row[column]).filter((id): id is string => typeof id === "string");
+  const ids = (links.data ?? [])
+    .map((row) => ("goal_id" in row ? row.goal_id : row.project_id))
+    .filter((id): id is string => typeof id === "string");
   if (ids.length === 0) {
     return [];
   }
