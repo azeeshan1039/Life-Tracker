@@ -28,11 +28,14 @@ export default async function HabitsPage({
   const area = parseArea(first(params.area));
   const settings = await getSettings(user.id);
   const today = todayInTimezone(new Date(), settings.timezone);
-  const areas = await listLifeAreas();
-  const goals = await listGoalChoices(user.id);
-  const habits = (await listHabits(user.id, status)).filter((habit) => area === null || habit.lifeAreaId === area);
   const monday = addCivilDays(today, 1 - isoWeekday(today));
-  const logs = status === "active" ? await listLogsSince(user.id, monday) : [];
+  const [areas, goals, habitRows, logs] = await Promise.all([
+    listLifeAreas(),
+    listGoalChoices(user.id),
+    listHabits(user.id, status),
+    status === "active" ? listLogsSince(user.id, monday) : Promise.resolve([]),
+  ]);
+  const habits = habitRows.filter((habit) => area === null || habit.lifeAreaId === area);
 
   return (
     <div className="mx-auto flex w-full max-w-lg flex-col gap-6 px-4 py-6 text-neutral-900">

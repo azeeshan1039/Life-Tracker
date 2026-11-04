@@ -66,6 +66,23 @@ export async function readDashboardConfig(userId: string): Promise<DashboardConf
   return parseDashboardConfig(data?.dashboard_config);
 }
 
+export async function readDashboardBootstrap(
+  userId: string,
+): Promise<{ timezone: string; config: DashboardConfig }> {
+  const { data, error } = await getAdminClient()
+    .from("user_settings")
+    .select("timezone, dashboard_config")
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (error) {
+    throw new Error(error.message);
+  }
+  return {
+    timezone: data?.timezone ?? "Asia/Karachi",
+    config: parseDashboardConfig(data?.dashboard_config),
+  };
+}
+
 export async function saveDashboardConfig(
   userId: string,
   input: { pinnedGoalIds: string[]; hiddenWidgets: string[] },
@@ -96,9 +113,13 @@ export async function saveDashboardConfig(
   return { ok: true, config };
 }
 
-export async function loadDashboard(userId: string, today: string): Promise<DashboardData> {
+export async function loadDashboard(
+  userId: string,
+  today: string,
+  suppliedConfig?: DashboardConfig,
+): Promise<DashboardData> {
   const [config, habits, goals, milestones] = await Promise.all([
-    readDashboardConfig(userId),
+    suppliedConfig ?? readDashboardConfig(userId),
     loadHabitsForToday(userId, today),
     listGoalRows(userId),
     listUpcomingMilestones(userId, today, sevenDayEnd(today)),

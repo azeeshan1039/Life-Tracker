@@ -17,7 +17,23 @@ type SeriesRow = {
   project_id: string | null;
 };
 
+const materializations = new Map<string, Promise<void>>();
+
 export async function materializeActiveSeries(userId: string, today: string): Promise<void> {
+  const key = `${userId}:${today}`;
+  const existing = materializations.get(key);
+  if (existing) {
+    return existing;
+  }
+  const pending = materialize(userId, today).catch((error) => {
+    materializations.delete(key);
+    throw error;
+  });
+  materializations.set(key, pending);
+  return pending;
+}
+
+async function materialize(userId: string, today: string): Promise<void> {
   const { data, error } = await getAdminClient()
     .from("recurrence_series")
     .select(

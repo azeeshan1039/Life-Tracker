@@ -29,10 +29,15 @@ export default async function MeasurementsPage({
   const presetGoalId = first(params.goal) ?? "";
   const settings = await getSettings(user.id);
   const today = todayInTimezone(new Date(), settings.timezone);
-  const metrics = (await listMetrics(user.id, status, today)).filter((metric) => area === null || metric.lifeAreaId === area);
-  const netWorth = await loadNetWorth(user.id, today);
-  const areas = await listLifeAreas();
-  const goals = await listGoalChoices(user.id);
+  const [metricRows, netWorth, areas, goals] = await Promise.all([
+    listMetrics(user.id, status, today),
+    status === "active"
+      ? loadNetWorth(user.id, today)
+      : Promise.resolve<NetWorthView>({ outcome: "missing_assets", rows: [] }),
+    listLifeAreas(),
+    listGoalChoices(user.id),
+  ]);
+  const metrics = metricRows.filter((metric) => area === null || metric.lifeAreaId === area);
 
   return (
     <div className="mx-auto flex w-full max-w-lg flex-col gap-6 px-4 py-6 text-neutral-900">

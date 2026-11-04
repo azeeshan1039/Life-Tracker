@@ -41,7 +41,7 @@ export default async function TasksPage({
   const today = todayInTimezone(new Date(), settings.timezone);
   const areasPromise = listLifeAreas();
   await materializeActiveSeries(user.id, today);
-  const [areas, taskRows] = await Promise.all([areasPromise, listTasksForUser(user.id)]);
+  const [areas, taskRows] = await Promise.all([areasPromise, listTasksForUser(user.id, areasPromise)]);
   const tasks = filterTasks(taskRows, {
     lifeAreaId: Number.isInteger(lifeAreaId) ? lifeAreaId : null,
     priority: Number.isInteger(priorityFilter) ? priorityFilter : null,

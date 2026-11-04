@@ -132,7 +132,7 @@ export async function listCalendarTasks(userId: string): Promise<CalendarTask[]>
     .from("tasks")
     .select("id, title, due_on, scheduled_for, scheduled_start, status")
     .eq("user_id", userId)
-    .neq("status", "cancelled");
+    .in("status", ["inbox", "todo", "in_progress"]);
   assertNoError(error);
   return (data ?? []).map((row) => ({
     id: row.id,

@@ -77,23 +77,19 @@ export async function listAreaCards(userId: string): Promise<AreaCard[]> {
 }
 
 export async function loadArea(userId: string, key: string, today: string): Promise<AreaDetail | null> {
-  const area = await findArea(key);
-  if (!area) {
-    return null;
-  }
-  const [cards, goalsList, projectsList, tasksList, habitsList, metricsList, flow] = await Promise.all([
-    listAreaCards(userId),
-    preview("goals", userId, area.id, { status: "active" }),
-    preview("projects", userId, area.id, { status: "active" }),
-    preview("tasks", userId, area.id, { statuses: openTaskStatuses }),
-    preview("habits", userId, area.id, { status: "active" }),
-    preview("metrics", userId, area.id, { status: "active" }),
-    loadAreaCashFlow(userId, area.id, today),
-  ]);
-  const card = cards.find((item) => item.id === area.id);
+  const cards = await listAreaCards(userId);
+  const card = cards.find((item) => item.key === key);
   if (!card) {
     return null;
   }
+  const [goalsList, projectsList, tasksList, habitsList, metricsList, flow] = await Promise.all([
+    preview("goals", userId, card.id, { status: "active" }),
+    preview("projects", userId, card.id, { status: "active" }),
+    preview("tasks", userId, card.id, { statuses: openTaskStatuses }),
+    preview("habits", userId, card.id, { status: "active" }),
+    preview("metrics", userId, card.id, { status: "active" }),
+    loadAreaCashFlow(userId, card.id, today),
+  ]);
   return {
     ...card,
     goalsList,

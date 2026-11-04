@@ -1,28 +1,11 @@
 import type { ReactNode } from "react";
-import { redirect } from "next/navigation";
 import { ShellNav } from "../../components/shell/nav";
-import { requireUser, UnauthorizedError } from "../../lib/current-user";
 
-// Authenticated routes stay dynamic and must not use the shared cache for user rows.
-// requireUser() waits for the request, then reads the session cookie.
-// cacheComponents rejects `export const dynamic`. `instant = false` allows this
-// layout to block on that wait instead of prerendering the signed-in shell.
-export const instant = false;
-
-export default async function AuthenticatedLayout({
+export default function AppLayout({
   children,
 }: {
   children: ReactNode;
 }) {
-  try {
-    await requireUser();
-  } catch (error) {
-    if (error instanceof UnauthorizedError) {
-      redirect("/login");
-    }
-    throw error;
-  }
-
   return (
     <div className="min-h-dvh md:grid md:grid-cols-[auto_minmax(0,1fr)]">
       <a

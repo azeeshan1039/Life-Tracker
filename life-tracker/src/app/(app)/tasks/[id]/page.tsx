@@ -33,13 +33,16 @@ export default async function TaskDetailPage({
   }
 
   const { task, subtasks, activity } = detail;
-  const settings = await getSettings(user.id);
-  const areas = await listLifeAreas();
-  const projects = await listProjectChoices(user.id);
-  const milestones = await listMilestonesForUser(user.id);
-  const goals = await listGoalChoices(user.id);
-  const links = (await getTaskLinks(user.id, task.id)) ?? { projectId: null, milestoneId: null, goalIds: [] };
-  const series = task.seriesId ? await getSeries(user.id, task.seriesId) : null;
+  const [settings, areas, projects, milestones, goals, foundLinks, series] = await Promise.all([
+    getSettings(user.id),
+    listLifeAreas(),
+    listProjectChoices(user.id),
+    listMilestonesForUser(user.id),
+    listGoalChoices(user.id),
+    getTaskLinks(user.id, task.id),
+    task.seriesId ? getSeries(user.id, task.seriesId) : Promise.resolve(null),
+  ]);
+  const links = foundLinks ?? { projectId: null, milestoneId: null, goalIds: [] };
   const openChildren = subtasks.filter((item) => isOpenStatus(item.status));
 
   return (

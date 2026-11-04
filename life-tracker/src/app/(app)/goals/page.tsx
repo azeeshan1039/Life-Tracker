@@ -25,9 +25,11 @@ export default async function GoalsPage({
   const params = await searchParams;
   const status = parseStatus(first(params.status));
   const area = parseArea(first(params.area));
-  const areas = await listLifeAreas();
-  const goals = await listGoals(user.id, status, area);
-  const settings = await getSettings(user.id);
+  const [areas, goals, settings] = await Promise.all([
+    listLifeAreas(),
+    listGoals(user.id, status, area),
+    getSettings(user.id),
+  ]);
   const today = todayInTimezone(new Date(), settings.timezone);
   const measurements = new Map((await listGoalMeasurements(user.id, today)).map((item) => [item.goalId, item]));
   const areaName = new Map(areas.map((item) => [item.id, item.name]));

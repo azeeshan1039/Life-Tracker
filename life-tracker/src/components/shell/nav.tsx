@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { logoutAction } from "../../modules/auth/actions";
 import { Icon } from "./icons";
 
 const mainLinks = [
@@ -75,17 +74,6 @@ function NavLink({
   );
 }
 
-function SignOutButton({ showLabel = true }: { showLabel?: boolean }) {
-  return (
-    <form action={logoutAction}>
-      <button type="submit" className="shell-link w-full text-left" title="Sign out">
-        <Icon name="logout" />
-        <span className={showLabel ? "inline" : "sr-only lg:not-sr-only lg:inline"}>Sign out</span>
-      </button>
-    </form>
-  );
-}
-
 export function ShellNav() {
   const [showLabels, setShowLabels] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
@@ -134,7 +122,6 @@ export function ShellNav() {
           </ul>
           <div className="mt-auto border-t border-[#e5dfd4] py-2">
             <NavLink href="/settings" label="Settings" icon="settings" showLabel={showLabels} />
-            <SignOutButton showLabel={showLabels} />
           </div>
         </nav>
       </aside>
@@ -169,9 +156,6 @@ export function ShellNav() {
                 </Link>
               </li>
             ))}
-            <li>
-              <SignOutButton />
-            </li>
           </ul>
         ) : null}
         <ul className="grid grid-cols-5">

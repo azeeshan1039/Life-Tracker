@@ -1,8 +1,6 @@
-import { cookies } from "next/headers";
 import Link from "next/link";
 import { formatCivilDate, todayInTimezone } from "../../../lib/dates";
-import { requireUserFromToken } from "../../../lib/current-user";
-import { sessionCookie } from "../../../modules/auth/session";
+import { requireUser } from "../../../lib/current-user";
 import { getSettings } from "../../../modules/settings/queries";
 import { TodayHabits } from "../../../components/habits/today-habits";
 import { CaptureForm } from "../../../components/tasks/capture-form";
@@ -16,15 +14,10 @@ import { groupForToday, listTasksForUser } from "../../../modules/tasks/views";
 // The session check waits for the request, so this page cannot navigate instantly.
 export const instant = false;
 
-export async function loadToday(token: string | undefined) {
-  return requireUserFromToken(token);
-}
-
 export default async function TodayPage() {
   const { connection } = await import("next/server");
   await connection();
-  const cookieStore = await cookies();
-  const user = await loadToday(cookieStore.get(sessionCookie.name)?.value);
+  const user = await requireUser();
   const settings = await getSettings(user.id);
   const today = todayInTimezone(new Date(), settings.timezone);
   const [habits] = await Promise.all([

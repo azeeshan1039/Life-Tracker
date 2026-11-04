@@ -103,13 +103,17 @@ export async function listLifeAreas(): Promise<{ id: number; name: string }[]> {
   return data ?? [];
 }
 
-export async function listTasksForUser(userId: string): Promise<TaskListItem[]> {
+export async function listTasksForUser(
+  userId: string,
+  areasPromise: Promise<{ id: number; name: string }[]> = listLifeAreas(),
+): Promise<TaskListItem[]> {
   const [areas, result] = await Promise.all([
-    listLifeAreas(),
+    areasPromise,
     getAdminClient()
       .from("tasks")
       .select("id, title, status, priority, due_on, scheduled_for, life_area_id, estimated_minutes")
-      .eq("user_id", userId),
+      .eq("user_id", userId)
+      .in("status", ["inbox", "todo", "in_progress"]),
   ]);
   if (result.error) {
     throw new Error(result.error.message);
