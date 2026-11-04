@@ -536,3 +536,221 @@ table.border-collapse td {
   width: 1.25rem;
   height: 1.25rem;
 }
+
+.page-hero {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 1.35rem;
+}
+
+.progress-hero {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.progress-signal {
+  min-width: 9rem;
+  border-left: 3px solid var(--accent);
+  padding-left: 1rem;
+}
+
+.section-heading,
+.inbox-strip {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.inbox-strip {
+  align-items: center;
+  border-top: 1px solid var(--line);
+  padding-top: 1.25rem;
+}
+
+.empty-state {
+  border: 1px dashed var(--line-strong);
+  border-radius: 1rem;
+  background: rgba(255, 252, 248, 0.55);
+  padding: 1rem;
+}
+
+.quick-add {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 40;
+}
+
+.quick-add-trigger {
+  display: inline-flex;
+  min-height: 2.85rem;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  background: var(--accent);
+  padding: 0.65rem 1rem;
+  color: #fff;
+  font-weight: 700;
+  box-shadow: var(--shadow);
+}
+
+.quick-add-trigger:hover {
+  background: var(--accent-strong);
+}
+
+.quick-add-trigger span[aria-hidden="true"] {
+  font-size: 1.25rem;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.quick-add-panel {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 0.65rem);
+  width: min(28rem, calc(100vw - 2rem));
+  border: 1px solid var(--line);
+  border-radius: 1.15rem;
+  background: var(--surface);
+  padding: 1rem;
+  box-shadow: var(--shadow);
+}
+
+.icon-button {
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  place-items: center;
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.icon-button:hover {
+  background: var(--canvas);
+  color: var(--ink);
+}
+
+.task-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.task-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.task-complete-button,
+.task-schedule-menu > summary {
+  display: grid;
+  min-width: 2.25rem;
+  min-height: 2.25rem;
+  place-items: center;
+  border: 1px solid var(--line-strong);
+  border-radius: 0.7rem;
+  background: #fff;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.task-complete-button:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+.task-schedule-menu {
+  position: relative;
+}
+
+.task-schedule-menu > summary {
+  display: flex;
+  padding: 0 0.55rem;
+  list-style: none;
+}
+
+.task-schedule-menu > summary::-webkit-details-marker {
+  display: none;
+}
+
+.task-schedule-menu > div {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  right: 0;
+  z-index: 10;
+  display: flex;
+  min-width: 8rem;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: 0.8rem;
+  background: var(--surface);
+  padding: 0.3rem;
+  box-shadow: var(--shadow);
+}
+
+.task-schedule-menu > div button {
+  border-radius: 0.55rem;
+  padding: 0.45rem 0.6rem;
+  text-align: left;
+  font-size: 0.82rem;
+}
+
+.task-schedule-menu > div button:hover {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+.task-row-error {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.25rem);
+  z-index: 5;
+  max-width: 16rem;
+  border: 1px solid #e0bcbc;
+  border-radius: 0.6rem;
+  background: #fff5f5;
+  padding: 0.4rem 0.55rem;
+  color: var(--danger);
+  font-size: 0.75rem;
+}
+
+@media (max-width: 767px) {
+  .quick-add {
+    right: 0.85rem;
+    bottom: calc(4.3rem + env(safe-area-inset-bottom));
+  }
+
+  .quick-add-trigger span:last-child {
+    display: none;
+  }
+
+  .quick-add-trigger {
+    width: 3rem;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .progress-hero,
+  .section-heading {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .progress-signal {
+    border-left: 0;
+    padding-left: 0;
+  }
+
+  .task-row {
+    align-items: start;
+  }
+}

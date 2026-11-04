@@ -6,36 +6,19 @@ import { useEffect, useState } from "react";
 import { Icon } from "./icons";
 
 const mainLinks = [
-  { href: "/today", label: "My Day", icon: "today" },
-  { href: "/", label: "Dashboard", icon: "dashboard" },
+  { href: "/today", label: "Today", icon: "today" },
   { href: "/tasks", label: "Tasks", icon: "tasks" },
+  { href: "/plans", label: "Planning", icon: "plans" },
+  { href: "/progress", label: "Progress", icon: "progress" },
+];
+
+const moreLinks = [
   { href: "/calendar", label: "Calendar", icon: "calendar" },
   { href: "/areas", label: "Life areas", icon: "areas" },
-  { href: "/goals", label: "Goals", icon: "goals" },
-  { href: "/projects", label: "Projects", icon: "projects" },
-  { href: "/habits", label: "Habits", icon: "habits" },
-  { href: "/measurements", label: "Measurements", icon: "measurements" },
-  { href: "/plans", label: "Planning", icon: "plans" },
-  { href: "/reviews", label: "Reviews", icon: "reviews" },
-];
-
-const lifeAreas = [
-  { href: "/areas/business", label: "Business & Entrepreneurship" },
-  { href: "/areas/career", label: "Career & Market-Relevant Skills" },
-  { href: "/areas/health", label: "Health & Fitness" },
-  { href: "/areas/deen", label: "Deen & Character" },
-  { href: "/areas/wealth", label: "Wealth & Financial Independence" },
-  { href: "/areas/relationships", label: "Relationships, Family & Home" },
-];
-
-const phoneMoreLinks = [
   { href: "/habits", label: "Habits", icon: "habits" },
   { href: "/goals", label: "Goals", icon: "goals" },
   { href: "/projects", label: "Projects", icon: "projects" },
   { href: "/measurements", label: "Measurements", icon: "measurements" },
-  { href: "/calendar", label: "Calendar", icon: "calendar" },
-  { href: "/reviews", label: "Reviews", icon: "reviews" },
-  { href: "/", label: "Dashboard", icon: "dashboard" },
   { href: "/settings", label: "Settings", icon: "settings" },
 ];
 
@@ -43,7 +26,7 @@ const phoneLinks = [
   { href: "/today", label: "Today", icon: "today" },
   { href: "/tasks", label: "Tasks", icon: "tasks" },
   { href: "/plans", label: "Plan", icon: "plans" },
-  { href: "/areas", label: "Areas", icon: "areas" },
+  { href: "/progress", label: "Progress", icon: "progress" },
 ];
 
 function isCurrent(pathname: string, href: string): boolean {
@@ -78,6 +61,7 @@ export function ShellNav() {
   const [showLabels, setShowLabels] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const pathname = usePathname();
+  const moreCurrent = moreLinks.some((link) => isCurrent(pathname, link.href));
 
   useEffect(() => {
     setMoreOpen(false);
@@ -108,21 +92,30 @@ export function ShellNav() {
             {mainLinks.map((link) => (
               <li key={link.href}>
                 <NavLink href={link.href} label={link.label} icon={link.icon} showLabel={showLabels} />
-                {link.href === "/areas" ? (
-                  <ul className={`shell-sub mt-0.5 space-y-0.5 pl-2 ${showLabels ? "" : "hidden lg:block"}`}>
-                    {lifeAreas.map((area) => (
-                      <li key={area.href}>
-                        <NavLink href={area.href} label={area.label} showLabel={showLabels} />
-                      </li>
-                    ))}
-                  </ul>
-                ) : null}
               </li>
             ))}
+            <li>
+              <button
+                type="button"
+                className="shell-link w-full text-left"
+                aria-expanded={moreOpen}
+                aria-current={moreCurrent ? "page" : undefined}
+                onClick={() => setMoreOpen((open) => !open)}
+              >
+                <Icon name="more" />
+                <span className={showLabels ? "inline" : "sr-only lg:not-sr-only lg:inline"}>More</span>
+              </button>
+              {moreOpen || moreCurrent ? (
+                <ul className={`shell-sub mt-1 space-y-0.5 pl-2 ${showLabels ? "" : "hidden lg:block"}`}>
+                  {moreLinks.map((link) => (
+                    <li key={link.href}>
+                      <NavLink href={link.href} label={link.label} icon={link.icon} showLabel={showLabels} />
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </li>
           </ul>
-          <div className="mt-auto border-t border-[#e5dfd4] py-2">
-            <NavLink href="/settings" label="Settings" icon="settings" showLabel={showLabels} />
-          </div>
         </nav>
       </aside>
       <header className="sticky top-0 z-20 flex items-center gap-2 border-b border-[#e5dfd4] bg-[#f3f0ea]/90 px-4 py-3 backdrop-blur md:hidden">
@@ -143,7 +136,7 @@ export function ShellNav() {
       >
         {moreOpen ? (
           <ul className="max-h-[60dvh] overflow-y-auto border-b border-[#e5dfd4] p-2">
-            {phoneMoreLinks.map((link) => (
+            {moreLinks.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}

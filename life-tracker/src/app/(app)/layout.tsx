@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { ShellNav } from "../../components/shell/nav";
+import { CaptureForm } from "../../components/tasks/capture-form";
 
 export default function AppLayout({
   children,
@@ -18,6 +19,7 @@ export default function AppLayout({
       <div id="main" className="pb-24 md:col-start-2 md:row-start-1 md:pb-10">
         {children}
       </div>
+      <CaptureForm />
     </div>
   );
 }

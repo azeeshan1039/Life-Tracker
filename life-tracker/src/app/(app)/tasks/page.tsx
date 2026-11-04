@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { requireUser } from "../../../lib/current-user";
 import { getSettings } from "../../../modules/settings/queries";
-import { CaptureForm } from "../../../components/tasks/capture-form";
 import { InboxTaskList } from "../../../components/tasks/captured-inbox";
 import { CompletionLine, TaskLine } from "../../../components/tasks/task-line";
+import { EmptyState } from "../../../components/ui/empty-state";
 import {
   filterTasks,
   inboxTasks,
@@ -48,9 +48,8 @@ export default async function TasksPage({
   });
 
   return (
-    <div className="has-capture-dock mx-auto flex w-full max-w-lg flex-col gap-6 px-4 py-8 text-neutral-900 sm:px-6">
+    <div className="mx-auto flex w-full max-w-lg flex-col gap-6 px-4 py-8 text-neutral-900 sm:px-6">
       <h1 className="text-3xl font-semibold">Tasks</h1>
-      <CaptureForm dock />
       <nav aria-label="Task views" className="flex flex-wrap gap-2">
         {views.map((item) => (
           <Link
@@ -129,13 +128,18 @@ function OpenView({
   if (view === "overdue") {
     const overdue = overdueTasks(tasks, today);
     if (overdue.length === 0) {
-      return <p>No overdue tasks.</p>;
+      return <EmptyState title="Nothing is overdue" description="You are caught up. Keep your attention on what is planned next." />;
     }
     return <TaskItems tasks={overdue} />;
   }
   const upcoming = upcomingTasks(tasks, today);
   if (upcoming.dated.length === 0 && upcoming.undated.length === 0) {
-    return <p>Nothing upcoming. Capture a task to add one.</p>;
+    return (
+      <EmptyState
+        title="Nothing is coming up"
+        description="Use Quick add when something becomes worth remembering. It will wait safely in your inbox."
+      />
+    );
   }
   return (
     <div className="flex flex-col gap-6">
@@ -166,7 +170,7 @@ async function CompletedView({
   const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
   const completions = filterTasks(await listRecentCompletions(userId, since), { lifeAreaId, priority });
   if (completions.length === 0) {
-    return <p>No completions in the last 30 days.</p>;
+    return <EmptyState title="No recent completions" description="Completed work from the last 30 days will appear here." />;
   }
   return (
     <ul className="flex flex-col gap-2">

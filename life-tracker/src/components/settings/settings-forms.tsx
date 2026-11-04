@@ -211,7 +211,7 @@ export function DashboardForm({
 
   return (
     <form action={formAction} className="mt-10 flex flex-col gap-4 border-t border-neutral-200 pt-6">
-      <h2 className="text-lg font-semibold">Dashboard</h2>
+      <h2 className="text-lg font-semibold">Progress overview</h2>
       {state.error ? (
         <p role="alert" className="text-sm text-red-700">
           {state.error}
@@ -242,7 +242,7 @@ export function DashboardForm({
         disabled={pending}
         className="rounded bg-neutral-900 px-3 py-2 text-white disabled:opacity-60"
       >
-        {pending ? "Saving…" : "Save dashboard"}
+        {pending ? "Saving…" : "Save progress overview"}
       </button>
     </form>
   );

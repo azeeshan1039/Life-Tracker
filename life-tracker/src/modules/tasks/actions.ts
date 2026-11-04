@@ -4,10 +4,10 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { after } from "next/server";
 import { UnauthorizedError, requireUser } from "../../lib/current-user";
-import { todayInTimezone } from "../../lib/dates";
+import { addCivilDays, todayInTimezone } from "../../lib/dates";
 import { getSettings } from "../settings/queries";
 import { captureInboxTask } from "./capture";
-import { createTask, addSubtask, cancelTask, completeTask, editTask, reopenTask } from "./mutations";
+import { createTask, addSubtask, cancelTask, completeTask, editTask, reopenTask, rescheduleTask } from "./mutations";
 import { setTaskLinks } from "./links";
 import { isCivilDate, isOptionalCivilDate, type OpenTaskStatus, type TaskInput } from "./schema";
 import { deactivateSeries, replaceSeriesGoals, updateSeriesTemplate } from "./series";
@@ -100,7 +100,7 @@ export async function captureTaskAction(
     after(() => {
       revalidatePath("/today");
       revalidatePath("/tasks");
-      revalidatePath("/");
+      revalidatePath("/progress");
     });
     return {
       error: "",
@@ -116,6 +116,46 @@ export async function captureTaskAction(
       captured: null,
     };
   }
+}
+
+export type InlineTaskActionState = {
+  error: string;
+  attempt: number;
+};
+
+export async function inlineTaskAction(
+  previous: InlineTaskActionState,
+  formData: FormData,
+): Promise<InlineTaskActionState> {
+  const taskId = String(formData.get("taskId") ?? "");
+  const intent = String(formData.get("intent") ?? "");
+  const user = await currentUser();
+  let result;
+
+  if (intent === "complete") {
+    result = await completeTask(user.id, taskId);
+  } else if (intent === "today" || intent === "tomorrow") {
+    const settings = await getSettings(user.id);
+    const today = todayInTimezone(new Date(), settings.timezone);
+    const scheduledFor = intent === "tomorrow" ? addCivilDays(today, 1) : today;
+    const dueOn = emptyToNull(formData.get("dueOn"));
+    result = await rescheduleTask(user.id, taskId, { scheduledFor, dueOn });
+  } else {
+    return { error: "Choose a task action.", attempt: previous.attempt + 1 };
+  }
+
+  if (!result.ok) {
+    return { error: result.message, attempt: previous.attempt + 1 };
+  }
+  revalidateTaskLists();
+  return { error: "", attempt: previous.attempt + 1 };
+}
+
+function revalidateTaskLists(): void {
+  revalidatePath("/today");
+  revalidatePath("/tasks");
+  revalidatePath("/progress");
+  revalidatePath("/calendar");
 }
 
 export type SeriesFormState = {

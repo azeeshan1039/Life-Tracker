@@ -59,6 +59,37 @@ test("complete, reopen, and reschedule keep history without note text", async ()
   }
 });
 
+test("scheduling an inbox task promotes it without detaching its dates", async () => {
+  const email = uniqueEmail();
+  try {
+    const userId = await insertUser(email);
+    const created = await createTask(userId, {
+      ...sampleInput(),
+      status: "inbox",
+      scheduledFor: null,
+      dueOn: "2026-06-24",
+    });
+    assert.equal(created.ok, true);
+    if (!created.ok) {
+      return;
+    }
+
+    const scheduled = await rescheduleTask(userId, created.task.id, {
+      scheduledFor: "2026-06-23",
+      dueOn: created.task.dueOn,
+    });
+    assert.equal(scheduled.ok, true);
+    if (!scheduled.ok) {
+      return;
+    }
+    assert.equal(scheduled.task.status, "todo");
+    assert.equal(scheduled.task.scheduledFor, "2026-06-23");
+    assert.equal(scheduled.task.dueOn, "2026-06-24");
+  } finally {
+    await removeUser(email);
+  }
+});
+
 test("another user receives not found for a task they do not own", async () => {
   const ownerEmail = uniqueEmail();
   const otherEmail = uniqueEmail();

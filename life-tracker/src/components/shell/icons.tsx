@@ -24,6 +24,12 @@ const paths: Record<string, ReactNode> = {
       <rect x="13.5" y="13.5" width="7" height="7" rx="1.6" />
     </>
   ),
+  progress: (
+    <>
+      <path d="M4 18.5V14M10 18.5V9.5M16 18.5V5.5M3.5 20.5h17" strokeLinecap="round" />
+      <path d="m4.5 10.5 5-4 4 2 6-5" strokeLinecap="round" strokeLinejoin="round" />
+    </>
+  ),
   tasks: (
     <>
       <rect x="4" y="4" width="16" height="16" rx="3" />

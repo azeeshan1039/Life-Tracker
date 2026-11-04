@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { CaptureForm } from "../../../components/tasks/capture-form";
 import { DayTaskForm } from "../../../components/tasks/day-task-form";
 import { addCivilDays, formatCivilDate, formatMonth, readCivilDate, shiftMonth, todayInTimezone, weekdayLabel } from "../../../lib/dates";
 import { requireUser } from "../../../lib/current-user";
@@ -41,7 +40,6 @@ export default async function CalendarPage({
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6 text-neutral-900">
       <h1 className="text-2xl font-semibold">Calendar</h1>
-      <CaptureForm />
       <section className="hidden md:block">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-lg font-semibold">{formatMonth(month)}</h2>
